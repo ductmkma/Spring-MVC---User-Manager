@@ -1,0 +1,83 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+ 	http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+ 	http://www.springframework.org/schema/mvc
+ 	http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+ 	http://www.springframework.org/schema/context
+ 	http://www.springframework.org/schema/context/spring-context-4.0.xsd">
+ 	
+ 	
+  <!--   cho phép hỗ trợ từ spring mvc: để hiểu được @Controller, @Request Mapping -->
+	<mvc:annotation-driven></mvc:annotation-driven>
+	
+	
+	<!-- quét toàn bộ các lớp trong package để khởi tạo -->
+	<context:component-scan base-package="com.zent.springmvc"/>
+	
+	<mvc:resources location="/css/" mapping="/css/**"/>
+	<mvc:resources mapping="/static/**" location="/static/" />
+	
+
+	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix">
+        	<!-- Nếu để /  thì mặc định đường contex ở webapp  -->
+            <value>/pages/</value>
+        </property>
+        <property name="suffix">
+            <value>.jsp</value>
+        </property>
+    </bean>
+    
+     <bean id="dataSource" 
+      class = "org.springframework.jdbc.datasource.DriverManagerDataSource">
+      <property name = "driverClassName" value = "com.mysql.jdbc.Driver"/>
+      <property name = "url" value = "jdbc:mysql://localhost:3307/quanlynguoidung?useUnicode=yes&amp;characterEncoding=UTF-8"/>
+      <property name = "username" value = "root"/>
+      <property name = "password" value = ""/>
+   </bean>
+   
+   <bean id="loginDAO" class="com.zent.dao.LoginDAO">
+   		<property name="dataSource" ref="dataSource"></property>
+   </bean>
+   <bean id="userValidator" class="com.zent.validator.UserValidator"></bean>
+   <bean id="loginController" class="com.zent.controller.LoginController">
+   		<property name="loginDAO" ref="loginDAO"></property>
+   		<property name="userValidator" ref="userValidator"></property>
+   		
+   </bean>
+  
+    <bean id="userManagerDAO" class="com.zent.dao.UserManagerDAO">
+   		<property name="dataSource" ref="dataSource"></property>
+   </bean>
+   
+   <bean id="userManagerController" class="com.zent.controller.UserManagerController">
+   		<property name="userDAO" ref="userManagerDAO"></property>
+   </bean>
+   <!-- Cấu hình file chứa language -->
+   <bean id="messageSource"
+    class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+    <property name="basename" value="/i18n/language" />
+    <property name="defaultEncoding" value="UTF-8" />
+  </bean>
+  <!-- Định nghĩa  -->
+  <!--   <bean id="localeResolver" nếu dùng session thay thế ở dưới.
+    class="org.springframework.web.servlet.i18n.SessionLocaleResolver">
+ -->
+  <bean id="localeResolver" 
+    class="org.springframework.web.servlet.i18n.CookieLocaleResolver">
+    <property name="defaultLocale" value="en" />
+    <property name="cookieName" value="myAppLocaleCookie"></property>
+    <property name="cookieMaxAge" value="3600"></property>
+  </bean>
+  
+    <mvc:interceptors>
+    <bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor">
+      <property name="paramName" value="language" />
+    </bean>
+  </mvc:interceptors>
+   
+   
+</beans>
